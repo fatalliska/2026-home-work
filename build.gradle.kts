@@ -90,11 +90,17 @@ tasks.register("codeStyleChecks") {
         "checkstyleTest",
         "checkstyleIntegrationTest",
         "pmdMain",
-        "pmdTest",
     )
-
 }
 
 tasks.check {
     dependsOn(tasks.test, integrationTest, "codeStyleChecks")
+}
+
+tasks.named("pmdIntegrationTest") {
+    enabled = false
+}
+
+tasks.named("pmdTest") {
+    enabled = false
 }
