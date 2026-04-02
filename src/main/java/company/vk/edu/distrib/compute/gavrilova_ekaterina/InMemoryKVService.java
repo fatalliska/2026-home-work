@@ -2,6 +2,7 @@ package company.vk.edu.distrib.compute.gavrilova_ekaterina;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import company.vk.edu.distrib.compute.Dao;
 import company.vk.edu.distrib.compute.KVService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,17 +13,19 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class InMemoryKVService implements KVService {
 
     private static final Logger log = LoggerFactory.getLogger(InMemoryKVService.class);
     private final HttpServer server;
-    private final InMemoryDao storage;
+    private final Dao<byte[]> storage;
 
     public InMemoryKVService(int port) throws IOException {
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
-        this.storage = new InMemoryDao();
+        //this.storage = new InMemoryDao();
+        this.storage = new FileDao(Path.of("ekaterina-gavrilova-storage"));
         initServer();
     }
 

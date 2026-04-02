@@ -14,17 +14,20 @@ public class FileDao implements Dao<byte[]> {
 
     public FileDao(Path storageDirectory) throws IOException {
         Objects.requireNonNull(storageDirectory);
+        if (!Files.exists(storageDirectory)) {
+            Files.createDirectories(storageDirectory);
+        }
         this.storageDirectory = storageDirectory;
-        Files.createDirectories(storageDirectory);
     }
 
     @Override
     public byte[] get(String key) throws NoSuchElementException, IllegalArgumentException, IOException {
         Path file = resolvePath(key);
-        if (!Files.exists(file)) {
-            throw new NoSuchElementException("Key not found: " + key);
+        try {
+            return Files.readAllBytes(file);
+        } catch (Exception e) {
+            return null;
         }
-        return Files.readAllBytes(file);
     }
 
     @Override
