@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static company.vk.edu.distrib.compute.ServerUtils.*;
+
 public class SimpleKVService implements KVService {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleKVService.class);
 
@@ -87,7 +89,6 @@ public class SimpleKVService implements KVService {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String method = exchange.getRequestMethod();
-            //Получение HTTP-метода, разбор query-строки по параметрам
             Map<String, String> queryParams = parseQuery(exchange.getRequestURI().getQuery());
             String id = queryParams.get("id");
 
@@ -97,18 +98,14 @@ public class SimpleKVService implements KVService {
             }
 
             try {
-                switch (method) {
-                    case "GET":
-                        handleGet(exchange, id);
-                        break;
-                    case "PUT":
-                        handlePut(exchange, id);
-                        break;
-                    case "DELETE":
-                        handleDelete(exchange, id);
-                        break;
-                    default:
-                        sendResponse(exchange, STATUS_METHOD_NOT_ALLOWED, new byte[0]);
+                if (METHOD_GET.equals(method)) {
+                    handleGet(exchange, id);
+                } else if (METHOD_PUT.equals(method)) {
+                    handlePut(exchange, id);
+                } else if (METHOD_DELETE.equals(method)) {
+                    handleDelete(exchange, id);
+                } else {
+                    sendResponse(exchange, STATUS_METHOD_NOT_ALLOWED, new byte[0]);
                 }
             } catch (IllegalArgumentException e) {
                 sendResponse(exchange, STATUS_BAD_REQUEST, e.getMessage().getBytes(StandardCharsets.UTF_8));
