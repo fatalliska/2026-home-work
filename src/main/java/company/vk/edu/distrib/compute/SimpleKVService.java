@@ -26,6 +26,7 @@ public class SimpleKVService implements KVService {
     private static final int STATUS_NOT_FOUND = 404;
     private static final int STATUS_METHOD_NOT_ALLOWED = 405;
     private static final int STATUS_INTERNAL_ERROR = 500;
+    private static final String MISSING_ID_MSG = "Missing id";
 
     private final int port;
     private final Dao<byte[]> dao;
@@ -88,33 +89,46 @@ public class SimpleKVService implements KVService {
     private final class EntityHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String method = exchange.getRequestMethod();
-            Map<String, String> queryParams = parseQuery(exchange.getRequestURI().getQuery());
-            String id = queryParams.get("id");
-
-            if (id == null || id.isEmpty()) {
-                sendResponse(exchange, STATUS_BAD_REQUEST, "Missing id".getBytes(StandardCharsets.UTF_8));
+            String id = extractId(exchange);
+            if (id == null) {
+                sendResponse(exchange, STATUS_BAD_REQUEST, MISSING_ID_MSG.getBytes(StandardCharsets.UTF_8));
                 return;
             }
-
             try {
-                if (METHOD_GET.equals(method)) {
-                    handleGet(exchange, id);
-                } else if (METHOD_PUT.equals(method)) {
-                    handlePut(exchange, id);
-                } else if (METHOD_DELETE.equals(method)) {
-                    handleDelete(exchange, id);
-                } else {
-                    sendResponse(exchange, STATUS_METHOD_NOT_ALLOWED, new byte[0]);
-                }
-            } catch (IllegalArgumentException e) {
+                dispatchRequest(exchange, id);
+            } catch (Exception e) {
+                handleException(exchange, e);
+            }
+        }
+
+        private String extractId(HttpExchange exchange) {
+            Map<String, String> queryParams = parseQuery(exchange.getRequestURI().getQuery());
+            String id = queryParams.get("id");
+            return (id == null || id.isEmpty()) ? null : id;
+        }
+
+        private void dispatchRequest(HttpExchange exchange, String id) throws IOException {
+            String method = exchange.getRequestMethod();
+            if (METHOD_GET.equals(method)) {
+                handleGet(exchange, id);
+            } else if (METHOD_PUT.equals(method)) {
+                handlePut(exchange, id);
+            } else if (METHOD_DELETE.equals(method)) {
+                handleDelete(exchange, id);
+            } else {
+                sendResponse(exchange, STATUS_METHOD_NOT_ALLOWED, new byte[0]);
+            }
+        }
+
+        private void handleException(HttpExchange exchange, Exception e) throws IOException {
+            if (e instanceof IllegalArgumentException) {
                 sendResponse(exchange, STATUS_BAD_REQUEST, e.getMessage().getBytes(StandardCharsets.UTF_8));
-            } catch (NoSuchElementException e) {
+            } else if (e instanceof NoSuchElementException) {
                 sendResponse(exchange, STATUS_NOT_FOUND, new byte[0]);
-            } catch (IOException e) {
+            } else if (e instanceof IOException) {
                 LOG.error("IO error", e);
                 sendResponse(exchange, STATUS_INTERNAL_ERROR, new byte[0]);
-            } catch (Exception e) {
+            } else {
                 LOG.error("Unexpected error", e);
                 sendResponse(exchange, STATUS_INTERNAL_ERROR, new byte[0]);
             }
