@@ -20,7 +20,6 @@ public final class ServerUtils {
     private static final int ARGS_LENGTH = 3;
     private static final int STATUS = 1;
 
-
     static final String METHOD_GET = "GET";
     static final String METHOD_PUT = "PUT";
     static final String METHOD_DELETE = "DELETE";
