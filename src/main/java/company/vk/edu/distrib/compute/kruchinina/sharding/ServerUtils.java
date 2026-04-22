@@ -18,7 +18,6 @@ public final class ServerUtils {
     private static final String CLUSTER_FLAG = "--cluster";
     private static final String ALGORITHM_RENDEZVOUS = "rendezvous";
     private static final int ARGS_LENGTH = 3;
-    private static final int STATUS = 1;
 
     static final String METHOD_GET = "GET";
     static final String METHOD_PUT = "PUT";
