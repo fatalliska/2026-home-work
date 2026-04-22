@@ -63,10 +63,11 @@ public final class ServerUtils {
 
     private static void runClusterMode(String... args) {
         if (args.length < ARGS_LENGTH) {
+            String errorMsg = "Usage: --cluster <algorithm> <port1,port2,...>";
             if (LOG.isErrorEnabled()) {
                 LOG.error("Usage: --cluster <algorithm> <port1,port2,...>");
             }
-            Runtime.getRuntime().halt(STATUS);
+            throw new IllegalArgumentException(errorMsg);
         }
         String algorithmArg = args[1];
         String portsArg = args[2];
