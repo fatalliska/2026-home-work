@@ -19,9 +19,9 @@ public final class ServerUtils {
     private static final String ALGORITHM_RENDEZVOUS = "rendezvous";
     private static final int ARGS_LENGTH = 3;
 
-    static final String METHOD_GET = "GET";
-    static final String METHOD_PUT = "PUT";
-    static final String METHOD_DELETE = "DELETE";
+    public static final String METHOD_GET = "GET";
+    public static final String METHOD_PUT = "PUT";
+    public static final String METHOD_DELETE = "DELETE";
 
     private ServerUtils() {
     }

@@ -39,7 +39,7 @@ public class SimpleKVService implements KVService {
     private final int port;
     private final Dao<byte[]> dao;
     private HttpServer server;
-    private boolean started; // по умолчанию false
+    private boolean started; //по умолчанию false
 
     public SimpleKVService(int port, Dao<byte[]> dao) {
         this.port = port;
@@ -186,8 +186,8 @@ public class SimpleKVService implements KVService {
     }
 
     //Метод отправки ответа: устанавливает код статуса и длину тела,
-    // записывает массив байтов в выходной поток,
-    // затем закрывает обмен
+    //записывает массив байтов в выходной поток,
+    //затем закрывает обмен
     private static void sendResponse(HttpExchange exchange, int statusCode, byte[] body) throws IOException {
         exchange.sendResponseHeaders(statusCode, body.length);
         try (OutputStream os = exchange.getResponseBody()) {

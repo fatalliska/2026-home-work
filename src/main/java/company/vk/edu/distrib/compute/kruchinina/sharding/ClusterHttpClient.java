@@ -20,25 +20,20 @@ public class ClusterHttpClient {
             .connectTimeout(Duration.ofSeconds(5))
             .build();
 
-    public void proxyRequest(String targetNode, HttpExchange originalExchange) throws IOException {
+    public void proxyRequest(String targetNode, HttpExchange originalExchange) {
         String method = originalExchange.getRequestMethod();
         String path = originalExchange.getRequestURI().getPath();
         String query = originalExchange.getRequestURI().getQuery();
         String fullUrl = "http://" + targetNode + path + (query != null ? "?" + query : "");
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Proxying {} request to {}", method, fullUrl);
-        }
 
         try {
             byte[] body = originalExchange.getRequestBody().readAllBytes();
             HttpRequest request = buildHttpRequest(method, fullUrl, body, originalExchange);
             HttpResponse<byte[]> response = sendRequest(request);
             forwardResponse(response, originalExchange);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOG.error("Proxy request interrupted for {}", fullUrl, e);
-            throw new IOException("Proxy request interrupted", e);
+        } catch (Exception e) {
+            LOG.error("Failed to proxy {} request to {}", method, fullUrl, e);
+            sendErrorResponse(originalExchange, "Proxy error: " + e.getMessage());
         }
     }
 
@@ -47,9 +42,10 @@ public class ClusterHttpClient {
                 .uri(URI.create(fullUrl))
                 .timeout(Duration.ofSeconds(30));
 
+        //Копируем заголовки, кроме запрещённых
         for (Map.Entry<String, List<String>> header : originalExchange.getRequestHeaders().entrySet()) {
             String name = header.getKey();
-            if (!isHopByHopHeader(name)) {
+            if (!isRestrictedHeader(name)) {
                 for (String value : header.getValue()) {
                     requestBuilder.header(name, value);
                 }
@@ -85,7 +81,25 @@ public class ClusterHttpClient {
         originalExchange.close();
     }
 
-    private boolean isHopByHopHeader(String name) {
+    /**
+     * Отправляет ошибку клиенту, чтобы не обрывать соединение.
+     */
+    private void sendErrorResponse(HttpExchange exchange, String message) {
+        try (AutoCloseable ignored = exchange::close) {
+            byte[] body = message.getBytes();
+            exchange.sendResponseHeaders(500, body.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(body);
+            }
+        } catch (Exception ex) {
+            LOG.error("Failed to send error response", ex);
+        }
+    }
+
+    /**
+     * Заголовки, которые нельзя или не нужно проксировать.
+     */
+    private boolean isRestrictedHeader(String name) {
         return "Connection".equalsIgnoreCase(name)
                 || "Keep-Alive".equalsIgnoreCase(name)
                 || "Proxy-Authenticate".equalsIgnoreCase(name)
@@ -93,6 +107,8 @@ public class ClusterHttpClient {
                 || "TE".equalsIgnoreCase(name)
                 || "Trailer".equalsIgnoreCase(name)
                 || "Transfer-Encoding".equalsIgnoreCase(name)
-                || "Upgrade".equalsIgnoreCase(name);
+                || "Upgrade".equalsIgnoreCase(name)
+                || "Host".equalsIgnoreCase(name)
+                || "Content-Length".equalsIgnoreCase(name);
     }
 }
