@@ -103,8 +103,25 @@ public final class ServerUtils {
         }
     }
 
-    // Упрощённая версия для снижения цикломатической сложности (не более 8).
     private static ClusterConfig parseClusterArgs(String... args) {
+        FlagsResult flags = parseFlags(args);
+        String portsArg = flags.portsArg;
+
+        if (portsArg == null || portsArg.isEmpty()) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("No ports specified for cluster");
+            }
+            Runtime.getRuntime().halt(1);
+        }
+
+        List<Integer> ports = Arrays.stream(portsArg.split(PORTS_SEPARATOR))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+
+        return new ClusterConfig(ports, flags.algorithm, flags.replication);
+    }
+
+    private static FlagsResult parseFlags(String... args) {
         String algorithmArg = ALGORITHM_RENDEZVOUS;
         int replication = DEFAULT_REPLICATION_FACTOR;
         String portsArg = null;
@@ -125,19 +142,19 @@ public final class ServerUtils {
                 break;
             }
         }
+        return new FlagsResult(algorithmArg, replication, portsArg);
+    }
 
-        if (portsArg == null || portsArg.isEmpty()) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("No ports specified for cluster");
-            }
-            Runtime.getRuntime().halt(1);
+    private static class FlagsResult {
+        final String algorithm;
+        final int replication;
+        final String portsArg;
+
+        FlagsResult(String algorithm, int replication, String portsArg) {
+            this.algorithm = algorithm;
+            this.replication = replication;
+            this.portsArg = portsArg;
         }
-
-        List<Integer> ports = Arrays.stream(portsArg.split(PORTS_SEPARATOR))
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
-
-        return new ClusterConfig(ports, algorithmArg, replication);
     }
 
     private static class ClusterConfig {
