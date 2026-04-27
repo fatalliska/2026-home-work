@@ -28,10 +28,10 @@ public final class ServerUtils {
             LOG.info("KVService stopped");
         } catch (IOException e) {
             LOG.error("IO error while starting service", e);
-            System.exit(1);
+            Runtime.getRuntime().halt(1);
         } catch (Exception e) {
             LOG.error("Unexpected error", e);
-            System.exit(1);
+            Runtime.getRuntime().halt(1);
         }
     }
 }
