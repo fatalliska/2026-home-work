@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package company.vk.edu.distrib.compute.kruchinina.grpc;
+
+option java_multiple_files = false;
+option java_package = "company.vk.edu.distrib.compute.kruchinina.grpc";
+option java_outer_classname = "KvInternalProto";
+
+service KeyValueInternalService {
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Upsert (UpsertRequest) returns (UpsertResponse);
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+}
+
+message GetRequest {
+  string key = 1;
+  int32 ack = 2;
+}
+
+message GetResponse {
+  bytes data = 1;
+}
+
+message UpsertRequest {
+  string key = 1;
+  bytes value = 2;
+  int32 ack = 3;
+}
+
+message UpsertResponse {
+}
+
+message DeleteRequest {
+  string key = 1;
+  int32 ack = 2;
+}
+
+message DeleteResponse {
+}
