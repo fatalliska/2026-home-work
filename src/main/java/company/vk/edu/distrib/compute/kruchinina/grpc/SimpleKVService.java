@@ -47,7 +47,6 @@ public class SimpleKVService implements KVService {
             this.grpcClient = Optional.of(client);
 
             List<String> rawList = new ArrayList<>();
-            // Интерфейс Map, реализация ConcurrentHashMap — потокобезопасно и удовлетворяет анализатор
             Map<String, String> extMap = new ConcurrentHashMap<>();
             for (String ext : clusterNodes) {
                 String raw = ext.split("\\?")[0];
