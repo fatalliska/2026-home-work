@@ -13,14 +13,13 @@ public class InternalKeyValueService extends KeyValueInternalServiceGrpc.KeyValu
     private final Dao<byte[]> dao;
 
     public InternalKeyValueService(Dao<byte[]> dao) {
-        super(); // явный вызов, убирает замечание CallSuperInConstructor
+        super();
         this.dao = dao;
     }
 
     @Override
     public void get(KvInternalProto.GetRequest request,
                     StreamObserver<KvInternalProto.GetResponse> responseObserver) {
-        // Проверка ack до try – исключение не будет лететь внутри try и ловиться
         if (!(dao instanceof ReplicatedFileSystemDao) && request.getAck() != 1) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription("Replication not supported")

@@ -13,4 +13,3 @@ public class ReplicatedKVServiceFactory extends KVServiceFactory {
         return new ReplicatedKVService(port, DEFAULT_REPLICAS);
     }
 }
-

@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 public class GrpcClusterClient {
 
-    // Интерфейс вместо конкретной реализации
     private final Map<String, ManagedChannel> channels = new ConcurrentHashMap<>();
 
     public byte[] get(String extendedNode, String key, int ack) throws IOException {
@@ -26,7 +25,7 @@ public class GrpcClusterClient {
             return resp.getData().toByteArray();
         } catch (StatusRuntimeException e) {
             throwConvertedException(e);
-            return null; // never reached
+            return new byte[0];
         }
     }
 
@@ -71,7 +70,7 @@ public class GrpcClusterClient {
         return Integer.parseInt(extendedNode.substring(idx + "?grpcPort=".length()));
     }
 
-    // Преобразует gRPC-ошибку в проверяемое исключение
+    //Преобразует gRPC-ошибку в проверяемое исключение
     private void throwConvertedException(StatusRuntimeException e) throws IOException {
         Status status = e.getStatus();
         String desc = status.getDescription();

@@ -111,7 +111,7 @@ public final class ServerUtils {
             if (LOG.isErrorEnabled()) {
                 LOG.error("No ports specified for cluster");
             }
-            Runtime.getRuntime().halt(1);
+            throw new IllegalStateException("Application terminated due to fatal error");
         }
 
         List<Integer> ports = Arrays.stream(portsArg.split(PORTS_SEPARATOR))

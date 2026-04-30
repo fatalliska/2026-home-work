@@ -18,7 +18,7 @@ public class ReplicatedKVService implements ReplicatedService {
     private final int servicePort;
     private final int numberOfReplicasValue;
 
-    // Одиночный режим (без кластера, gRPC не нужен)
+    //Одиночный режим
     public ReplicatedKVService(int port, int replicas) throws IOException {
         this.servicePort = port;
         this.numberOfReplicasValue = replicas;
@@ -33,7 +33,7 @@ public class ReplicatedKVService implements ReplicatedService {
         }
     }
 
-    // Кластерный режим (принимает расширенные адреса и grpcPort)  <-- ВОТ ЭТОТ КОНСТРУКТОР
+    //Кластерный режим
     public ReplicatedKVService(int port, Dao<byte[]> dao,
                                List<String> clusterNodes, String selfAddress,
                                ShardingStrategy shardingStrategy, int grpcPort) {
