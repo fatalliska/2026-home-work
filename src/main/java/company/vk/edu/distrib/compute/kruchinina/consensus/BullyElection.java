@@ -15,14 +15,14 @@ public final class BullyElection {
         //utility class
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") //т.к. необходимо создание нескольких одинаковых узлов
-    static void main(String[] args) throws InterruptedException {
-        final int nodeCount = 5;
+    public static void main(String[] args) throws InterruptedException {
         Map<Integer, ClusterNode> nodes = new ConcurrentHashMap<>();
+        nodes.put(1, new ClusterNode(1, nodes));
+        nodes.put(2, new ClusterNode(2, nodes));
+        nodes.put(3, new ClusterNode(3, nodes));
+        nodes.put(4, new ClusterNode(4, nodes));
+        nodes.put(5, new ClusterNode(5, nodes));
 
-        for (int i = 1; i <= nodeCount; i++) {
-            nodes.put(i, new ClusterNode(i, nodes));
-        }
         for (ClusterNode node : nodes.values()) {
             node.start();
         }
