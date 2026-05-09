@@ -15,6 +15,7 @@ public final class BullyElection {
         //utility class
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") //т.к. необходимо создание нескольких одинаковых узлов
     public static void main(String[] args) throws InterruptedException {
         final int nodeCount = 5;
         Map<Integer, ClusterNode> nodes = new ConcurrentHashMap<>();
