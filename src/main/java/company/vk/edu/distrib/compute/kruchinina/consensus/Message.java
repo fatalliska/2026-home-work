@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Базовый класс для всех сообщений, которыми обмениваются узлы.
  * Каждое сообщение содержит идентификатор отправителя
- * и номер эпохи для обеспечения идемпотентности.
+ * и номер эпохи для обеспечения идемпотентности
  */
 public abstract class Message {
     public final int senderId;
@@ -18,8 +18,12 @@ public abstract class Message {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Message)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Message)) {
+            return false;
+        }
         Message m = (Message) o;
         return senderId == m.senderId && term == m.term;
     }
